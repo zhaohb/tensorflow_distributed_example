@@ -22,6 +22,9 @@ import argparse
 import math
 
 import tensorflow as tf
+# Polyaxon
+from polyaxon.tracking import Run
+
 
 FLAGS = None
 batch_size = 100
@@ -65,6 +68,13 @@ def main(_):
     train_batch_image, train_batch_label = tf.train.batch(
       [train_image, train_label],
       batch_size=batch_size)
+
+    #polyaxon
+    experiment = Run()
+    # Polyaxon
+    experiment.log_data_ref(content=train_image, name='train_image')
+    experiment.log_data_ref(content=train_label, name='train_label')
+
 
     #
     # define training graph
@@ -147,6 +157,9 @@ def main(_):
         local_step_value += 1
         if local_step_value % 100 == 0: # You can also use tf.train.LoggingTensorHook for output
           print("Local Step %d, Global Step %d (Loss: %.2f)" % (local_step_value, global_step_value, loss_value))
+          # Polyaxon
+          experiment.log_metrics(step=local_step_value, loss=loss_value)
+
 
     print('training finished')
 
