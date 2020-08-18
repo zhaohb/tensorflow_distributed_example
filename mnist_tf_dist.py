@@ -39,9 +39,9 @@ is_chief = False
 
 def main(_):
   with tf.device(tf.train.replica_device_setter(
-    worker_device="/job:%s/task:%d/%s" % (task["type"], task["index"]),
+    worker_device="/job:%s/task:%d" % (task["type"], task["index"]),
     cluster=cluster)):
-    worker_device="/job:%s/task:%d/%s" % (task["type"], task["index"]),
+    worker_device="/job:%s/task:%d" % (task["type"], task["index"]),
     logging.info("worker_device: %s",worker_device)
 
     ###
