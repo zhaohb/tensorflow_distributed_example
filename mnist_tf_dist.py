@@ -214,7 +214,7 @@ if __name__ == '__main__':
     cluster_spec_object = tf.train.ClusterSpec(cluster_spec)
     server_def = tf.train.ServerDef(
         cluster=cluster_spec_object.as_cluster_def(),
-        protocol="grpc",
+    #    protocol="grpc",
         job_name=task["type"],
         task_index=task["index"])
 
