@@ -160,7 +160,7 @@ def main(_):
           feed_dict=feed_dict)
         local_step_value += 1
         if local_step_value % 100 == 0: # You can also use tf.train.LoggingTensorHook for output
-          print("Local Step %d, Global Step %d (Loss: %.2f)" % (local_step_value, global_step_value, loss_value))
+          logging.info("Local Step %d, Global Step %d (Loss: %.2f)" ,local_step_value, global_step_value, loss_value)
           # Polyaxon
           experiment.log_metrics(step=local_step_value, loss=loss_value)
 
@@ -223,16 +223,16 @@ if __name__ == '__main__':
     logging.info("Building server.")
 
 
-  # start server
-  #cluster = tf.train.ClusterSpec({
-  #  'ps': ['127.0.0.1:2222'],
-  #  'worker': [
-  #    '127.0.0.1:3333',
-  #    '127.0.0.1:4444'
-  #  ]})
-  server = tf.train.Server(server_def)
-  if task["type"] == "ps":
-    server.join()
-  elif task["type"] == "worker":
-    is_chief = (FLAGS.task_index == 0)
-    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    # start server
+    #cluster = tf.train.ClusterSpec({
+    #  'ps': ['127.0.0.1:2222'],
+    #  'worker': [
+    #    '127.0.0.1:3333',
+    #    '127.0.0.1:4444'
+    #  ]})
+    server = tf.train.Server(server_def)
+    if task["type"] == "ps":
+      server.join()
+    elif task["type"] == "worker":
+      is_chief = (FLAGS.task_index == 0)
+      tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
