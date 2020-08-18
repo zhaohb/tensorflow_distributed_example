@@ -17,8 +17,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import sys
 import argparse
+import json
+import logging
+import os
+import retrying
+import sys
 import math
 
 import tensorflow as tf
@@ -173,12 +177,12 @@ if __name__ == '__main__':
   parser.add_argument(
     '--train_file',
     type=str,
-    default='/home/distributed-tensorflow-example/train.tfrecords',
+    default='/distributed-tensorflow-example/train.tfrecords',
     help='File path for the training data.')
   parser.add_argument(
     '--out_dir',
     type=str,
-    default='/home/distributed-tensorflow-example/out',
+    default='/distributed-tensorflow-example/out',
     help='Dir path for the model and checkpoint output.')
   parser.add_argument(
     '--job_name',
@@ -192,19 +196,43 @@ if __name__ == '__main__':
     help='index number in job for cluster')
   FLAGS, unparsed = parser.parse_known_args()
 
+  logging.info("Tensorflow version: %s", tf.__version__)
+
+  tf_config_json = os.environ.get("TF_CONFIG", "{}")
+  tf_config = json.loads(tf_config_json)
+  logging.info("tf_config: %s", tf_config)
+
+  task = tf_config.get("task", {})
+  logging.info("task: %s", task)
+
+  cluster_spec = tf_config.get("cluster", {})
+  logging.info("cluster_spec: %s", cluster_spec)
+
+  server = None
+  device_func = None
+  if cluster_spec:
+    cluster_spec_object = tf.train.ClusterSpec(cluster_spec)
+    server_def = tf.train.ServerDef(
+        cluster=cluster_spec_object.as_cluster_def(),
+        protocol="grpc",
+        job_name=task["type"],
+        task_index=task["index"])
+
+    logging.info("server_def: %s", server_def)
+
+    logging.info("Building server.")
+
+
   # start server
-  cluster = tf.train.ClusterSpec({
-    'ps': ['127.0.0.1:2222'],
-    'worker': [
-      '127.0.0.1:3333',
-      '127.0.0.1:4444'
-    ]})
-  server = tf.train.Server(
-    cluster,
-    job_name=FLAGS.job_name,
-    task_index=FLAGS.task_index)
-  if FLAGS.job_name == "ps":
+  #cluster = tf.train.ClusterSpec({
+  #  'ps': ['127.0.0.1:2222'],
+  #  'worker': [
+  #    '127.0.0.1:3333',
+  #    '127.0.0.1:4444'
+  #  ]})
+  server = tf.train.Server(server_def)
+  if task["type"] == "ps":
     server.join()
-  elif FLAGS.job_name == "worker":
+  elif task["type"] == "worker":
     is_chief = (FLAGS.task_index == 0)
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
