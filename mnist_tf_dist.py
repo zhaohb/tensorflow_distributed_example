@@ -39,10 +39,10 @@ is_chief = False
 
 def main(_):
   with tf.device(tf.train.replica_device_setter(
-    worker_device="/job:%s/task:%d/%s" % (FLAGS.job_name, FLAGS.task_index,FLAGS.device),
+    worker_device="/job:%s/task:%d/%s" % (task["type"], task["index"]),
     cluster=cluster)):
-    worker_device="/job:%s/task:%d/%s" % (FLAGS.job_name, FLAGS.task_index,FLAGS.device),
-    print(worker_device)
+    worker_device="/job:%s/task:%d/%s" % (task["type"], task["index"]),
+    logging.info("worker_device: %s",worker_device)
 
     ###
     ### Training
@@ -187,12 +187,10 @@ if __name__ == '__main__':
   parser.add_argument(
     '--job_name',
     type=str,
-    required=True,
     help='job name (parameter or worker) for cluster')
   parser.add_argument(
     '--task_index',
     type=int,
-    required=True,
     help='index number in job for cluster')
   FLAGS, unparsed = parser.parse_known_args()
 
@@ -234,5 +232,5 @@ if __name__ == '__main__':
   if task["type"] == "ps":
     server.join()
   elif task["type"] == "worker":
-    is_chief = (FLAGS.task_index == 0)
+    is_chief = (task["index"] == 0)
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
