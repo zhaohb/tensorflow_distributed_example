@@ -1,3 +1,0 @@
-model_checkpoint_path: "/home/distributed-tensorflow-example/out/model.ckpt-2199"
-all_model_checkpoint_paths: "/home/distributed-tensorflow-example/out/model.ckpt-15"
-all_model_checkpoint_paths: "/home/distributed-tensorflow-example/out/model.ckpt-2199"
