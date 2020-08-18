@@ -210,29 +210,29 @@ if __name__ == '__main__':
 
   server = None
   device_func = None
-  if cluster_spec:
-    cluster_spec_object = tf.train.ClusterSpec(cluster_spec)
-    server_def = tf.train.ServerDef(
-        cluster=cluster_spec_object.as_cluster_def(),
-    #    protocol="grpc",
-        job_name=task["type"],
-        task_index=task["index"])
 
-    logging.info("server_def: %s", server_def)
+  cluster_spec_object = tf.train.ClusterSpec(cluster_spec)
+  server_def = tf.train.ServerDef(
+      cluster=cluster_spec_object.as_cluster_def(),
+  #    protocol="grpc",
+      job_name=task["type"],
+      task_index=task["index"])
 
-    logging.info("Building server.")
+  logging.info("server_def: %s", server_def)
+
+  logging.info("Building server.")
 
 
-    # start server
-    #cluster = tf.train.ClusterSpec({
-    #  'ps': ['127.0.0.1:2222'],
-    #  'worker': [
-    #    '127.0.0.1:3333',
-    #    '127.0.0.1:4444'
-    #  ]})
-    server = tf.train.Server(server_def)
-    if task["type"] == "ps":
-      server.join()
-    elif task["type"] == "worker":
-      is_chief = (FLAGS.task_index == 0)
-      tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+  # start server
+  #cluster = tf.train.ClusterSpec({
+  #  'ps': ['127.0.0.1:2222'],
+  #  'worker': [
+  #    '127.0.0.1:3333',
+  #    '127.0.0.1:4444'
+  #  ]})
+  server = tf.train.Server(server_def)
+  if task["type"] == "ps":
+    server.join()
+  elif task["type"] == "worker":
+    is_chief = (FLAGS.task_index == 0)
+    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
