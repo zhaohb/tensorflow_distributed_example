@@ -176,12 +176,12 @@ if __name__ == '__main__':
   parser.add_argument(
     '--train_file',
     type=str,
-    default='/distributed-tensorflow-example/train.tfrecords',
+    default='/tensorflow_distributed_example/train.tfrecords',
     help='File path for the training data.')
   parser.add_argument(
     '--out_dir',
     type=str,
-    default='/distributed-tensorflow-example/out',
+    default='/tensorflow_distributed_example/out',
     help='Dir path for the model and checkpoint output.')
   parser.add_argument(
     '--job_name',
