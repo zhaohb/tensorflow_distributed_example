@@ -21,7 +21,6 @@ import argparse
 import json
 import logging
 import os
-import retrying
 import sys
 import math
 
@@ -148,8 +147,8 @@ def main(_):
       # when data is over, OutOfRangeError occurs and ends with MonitoredSession
 
       local_step_value = 0
-      array_image, array_label = sess.run(
-        [train_batch_image, train_batch_label])
+      run_metadata = tf.RunMetadata()
+      array_image, array_label = sess.run([train_batch_image, train_batch_label], run_metadata=run_metadata)
       while not sess.should_stop():
         feed_dict = {
           plchd_image: array_image,
